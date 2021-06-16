@@ -1,0 +1,14 @@
+{
+    "EJ": "1a",
+    "FONT": 2,
+    "EPOCHS": 10000,
+    "ETA": 0.05,
+    "BETA": 0.02,
+    "DIVISION_LAYER": 3,
+    "MOMENTUM": "False", 
+    "MOMENTUM_FACTOR": 0.7,
+    "ADAPTIVE_LEARNING": "False",
+    "ADAPTIVE_LEARNING_EPOCHS": 10,
+    "ADAPTIVE_LEARNING_A": 0.4,
+    "ADAPTIVE_LEARNING_B": 0.6
+}
