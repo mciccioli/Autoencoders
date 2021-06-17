@@ -318,6 +318,32 @@ class Autoencoder:
         plt.grid()
         plt.show() 
 
+    def decode(self, a, b):
+        self.activations[math.floor(self.totalLayers/2)][1] = a
+        self.activations[math.floor(self.totalLayers/2)][2] = b
+        for m in range(math.floor(self.totalLayers/2)+1, self.totalLayers - 1):
+            for i in range(1, self.nodesPerLayer[m]):
+                hmi = self.h(m, i, self.nodesPerLayer[m-1], self.weights, self.activations)
+                self.activations[m][i] = self.g(hmi)
+        for i in range(0, self.nodesPerLayer[self.totalLayers - 1]):
+            hMi = self.h(self.totalLayers - 1, i, self.nodesPerLayer[self.totalLayers - 2], self.weights, self.activations)
+            self.activations[self.totalLayers - 1][i] = self.g(hMi)
+        perceptron_output = self.activations[self.totalLayers - 1]
+        for bit in range(len(perceptron_output)):
+            if(perceptron_output[bit] > 0): 
+                perceptron_output[bit] = 1
+            else: 
+                perceptron_output[bit] = -1
+        # imrpimo la letra
+        print("Decoding complete:")
+        for j in range(7):
+            for i in range(5):
+                if(perceptron_output[i + j * 5] > 0): 
+                    print("*", end = "")
+                else: 
+                    print(" ", end = "")
+            print("")
+        print("\n")
 
 class Autoencoder2:
     def __init__(self, weights ):
