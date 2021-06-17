@@ -2,7 +2,9 @@
 import math
 import random
 import copy
+from typing import Counter
 import numpy as np
+import matplotlib.pyplot as plt
 
 class Autoencoder:
 
@@ -113,6 +115,7 @@ class Autoencoder:
             error_epochs += len(error)
             print( "\tAprendí ", learned, "/", len(data), " letras")
         print("El error total fue de ", error_epochs)
+        return error, lowest_error, learned
            
             
 
@@ -277,3 +280,78 @@ class Autoencoder:
                     else: 
                         print(" ", end = "")
                 print("")
+    
+    def get_activations(self):
+        return self.activations
+
+    def graph(self, data, symbols):
+        # usa la función cla() para limpias los axis
+        plt.cla()
+        # el contador me ayuda a guardar el valor del espacio latente para cada símbolo
+        counter = 0
+        # el espacio latente es de 2 dimensiones
+        latent_values = [[None, None] for i in range(len(data))]
+        for input in data:
+            for k in range(len(input)):
+                self.activations[0][k+1] = input[k]
+            for m in range(1, self.totalLayers - 1):
+                for i in range(1, self.nodesPerLayer[m]):
+                    hmi = self.h(m, i, self.nodesPerLayer[m-1], self.weights, self.activations)
+                    self.activations[m][i] = self.g(hmi)
+            for i in range(0, self.nodesPerLayer[self.totalLayers - 1]):
+                hMi = self.h(self.totalLayers - 1, i, self.nodesPerLayer[self.totalLayers - 2], self.weights, self.activations)
+                self.activations[self.totalLayers - 1][i] = self.g(hMi)
+            # salida del perceptrón 
+            perceptron_output = self.activations[self.totalLayers - 1]
+            # valor en el espacio latente (capa intermedia)
+            x = self.activations[math.floor(self.totalLayers/2)][1]
+            y = self.activations[math.floor(self.totalLayers/2)][2]
+            # arreglo donde guardo los valores del espacio latente 
+            latent_values[counter] = [x, y]
+            # annotate() me sirve para anotar los valores de x e y con su respectivo texto (los símbolos en este caso)
+            if len(symbols) != 3 and len(symbols) != 4 and len(symbols) != 5:
+                plt.scatter(x, y)
+                plt.annotate(symbols[counter], xy=(x,y), textcoords='data')
+            else:
+                plt.scatter(x, y, c=symbols[counter])
+            counter += 1
+        plt.grid()
+        plt.show() 
+
+
+class Autoencoder2:
+    def __init__(self, weights ):
+        self.weights = weights
+
+    def get_weights(self):
+        return self.weights
+
+class AutoencoderFactory:
+    def train(layers, nodes_per_layer, data, eta, epochs, beta):
+        g = lambda x : x if x > 0 else 0
+        gder = lambda x : 1 if x > 0 else 0
+
+        error = []
+        division_layer = int(layers/2)
+        weights = [ np.random.rand(0,0) if i == 0 else np.random.rand(nodes_per_layer[i], nodes_per_layer[i-1]) - 0.5 for i in range(layers)]
+        
+        current_error = np.iinfo(np.int32).max
+
+        for epoch in range(epochs):
+            activations = [[ 1.0 if j == 0 else 0.0 for j in range(nodes_per_layer[i]+1)] for i in layers]
+
+            if current_error == 0:
+                break
+
+            np.random.shuffle(data)
+            for i in range(len(data)):
+                V = [data[0]]
+                h = []
+                for j in range(layers):
+                    V.append(g(weights[j]*V[len(V)-1]))
+                    h.append(weights[j]*V[len(V)-1])
+                delta = gder(h[layers-1])*(data[i]-g(h[layers-1]))
+                for j in range(1,layers):
+                    delta = gder(h[layers-j-1])*(weights[j]*V[layers-j-1])
+                    weights[j] = weights[j] + eta*delta*V[layers-j-1]
+        return Autencoder2( weigths )

@@ -1,7 +1,7 @@
 {
-    "EJ": "1a",
-    "FONT": 2,
-    "EPOCHS": 10000,
+    "EJ": "2",
+    "FONT": 0,
+    "EPOCHS": 100000,
     "ETA": 0.05,
     "BETA": 0.02,
     "DIVISION_LAYER": 3,
