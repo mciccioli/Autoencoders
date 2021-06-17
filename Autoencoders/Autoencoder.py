@@ -318,7 +318,7 @@ class Autoencoder:
         plt.grid()
         plt.show() 
 
-    def decode(self, a, b):
+    def decode(self, a, b, ex):
         self.activations[math.floor(self.totalLayers/2)][1] = a
         self.activations[math.floor(self.totalLayers/2)][2] = b
         for m in range(math.floor(self.totalLayers/2)+1, self.totalLayers - 1):
@@ -336,14 +336,19 @@ class Autoencoder:
                 perceptron_output[bit] = -1
         # imrpimo la letra
         print("Decoding complete:")
-        for j in range(7):
-            for i in range(5):
-                if(perceptron_output[i + j * 5] > 0): 
-                    print("*", end = "")
-                else: 
-                    print(" ", end = "")
-            print("")
-        print("\n")
+        if ex == "2":
+            print(perceptron_output)
+        else:
+            for j in range(7):
+                for i in range(5):
+                    if(perceptron_output[i + j * 5] > 0): 
+                        print("*", end = "")
+                    else: 
+                        print(" ", end = "")
+                print("")
+            print("\n")
+        return perceptron_output
+            
 
 class Autoencoder2:
     def __init__(self, weights ):

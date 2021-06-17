@@ -82,4 +82,5 @@ if exercise == '2':
     learnt = autoencoder.interval_train(3, epochs)
     print(f"Activations: {autoencoder.get_activations()}")
     autoencoder.graph(bin, ['RED', 'GREEN', 'BLUE', 'VIOLET', 'GRAY'])
-    
+    ans = autoencoder.decode(1, 0, exercise)
+    ans1 = autoencoder.decode(0, 1, exercise)
