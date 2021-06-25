@@ -4,7 +4,7 @@ import random
 import copy
 from typing import Counter
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 class Autoencoder:
 
@@ -111,19 +111,27 @@ class Autoencoder:
                 width = len(self.data)
             data = self.data[0:width+1]
             print("Entrenando", len(data), " letras")
-            error, lowest_error, learned = self.train(data, epochs)
-            error_epochs += len(error)
-            print( "\tAprendí ", learned, "/", len(data), " letras")
-        print("El error total fue de ", error_epochs)
-        return error, lowest_error, learned
+            error_complete, error_with_error , learn_complete, learn_with_error = self.train(data, epochs)
+            #error_epochs += len(error)
+            
+            print( "\tAprendí de forma completa ", learn_complete, "/", len(data), " letras")
+            print( "\tAprendí con un error de 4 bits ", learn_with_error, "/", len(data), " letras")
+        # print("El error total fue de ", error_epochs)
+        return 
            
             
 
     def train(self, data, epochs):
+        
+        learning_rate = self.eta
+        error_over_time_complete = []
+        error_over_time_with_error = []
+
+        error_complete_print = 0
+        error_with_error_print = 0
+
         if self.momentum:
             self.initialize_momentum()
-        learning_rate = self.eta
-        error_over_time = []
 
         for i in range(self.totalLayers):
             # inicializo el error en cada capa
@@ -163,8 +171,9 @@ class Autoencoder:
                 # PASO 6: Actualizar los pesos de las conexiones
                 self.update_weights()
 
-            # Medir error con pesos actuales TODO: REVISAR
-            learned_letters = 0
+            
+            learn_letter_complete = 0
+            learn_letter_with_error = 0
             for mu in data:
                 for k in range(len(mu)):
                     self.activations[0][k+1] = mu[k]
@@ -175,16 +184,22 @@ class Autoencoder:
                 for i in range(0, self.nodesPerLayer[self.totalLayers - 1]):
                     hMi = self.h(self.totalLayers - 1, i, self.nodesPerLayer[self.totalLayers - 2], self.weights, self.activations)
                     self.activations[self.totalLayers - 1][i] = self.g(hMi)
-                perceptron_output = self.activations[self.totalLayers - 1]
-                wrong_pixels = 0
-                for bit in range(len(perceptron_output)):
-                    if(perceptron_output[bit] * mu[bit] < 0):
-                        wrong_pixels += 1
-                if(wrong_pixels == 0):
-                    learned_letters += 1
+                autoencoder_output = self.activations[self.totalLayers - 1]
+                bit_error = 0
+                for bit in range(len(autoencoder_output)):
+                    if(autoencoder_output[bit] * mu[bit] < 0):
+                        bit_error += 1
+                if (bit_error <= 4):
+                    learn_letter_with_error += 1
+                if(bit_error == 0):
+                    learn_letter_complete += 1
 
 
-            current_error = len(data)-learned_letters
+            current_error_complete = len(data)-learn_letter_complete
+            current_error_with_error = len(data) - learn_letter_with_error
+            error_complete_print += current_error_complete
+            error_with_error_print += current_error_with_error
+            '''
             if (self.adaptive_learning):
                 if(current_error - last_error) <= 0:
                     growing_eta +=1
@@ -198,14 +213,21 @@ class Autoencoder:
                 elif descend_eta >= self.adaptive_learning_epochs:
                     self.eta -= self.adaptive_learning_b * self.eta
                     descend_eta = 0
+            '''
             #print(learned_letters)
             #print(current_error)
-            error_over_time.append(current_error)
+            error_over_time_complete.append(current_error_complete)
+            error_over_time_with_error.append(current_error_with_error)
+            '''
             last_error = current_error
             if(current_error < lowest_error):
                 lowest_error = current_error
-                
-        return error_over_time, lowest_error, learned_letters
+            '''
+        aux = error_complete_print / epochs
+        aux2 = error_with_error_print / epochs
+        print("Error bit completo ", aux)      
+        print("Error con 4 bits ", aux2)      
+        return error_over_time_complete, error_over_time_with_error, learn_letter_complete, learn_letter_with_error
 
     def propagate_input(self):
         # Vmi = g(hmi) para todo m desde 1 hasta M
@@ -284,6 +306,7 @@ class Autoencoder:
     def get_activations(self):
         return self.activations
 
+    '''
     def graph(self, data, symbols):
         # usa la función cla() para limpias los axis
         plt.cla()
@@ -317,6 +340,7 @@ class Autoencoder:
             counter += 1
         plt.grid()
         plt.show() 
+    '''
 
     def decode(self, a, b, ex):
         self.activations[math.floor(self.totalLayers/2)][1] = a

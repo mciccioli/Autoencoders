@@ -2,6 +2,8 @@ import json
 
 from Autoencoder import Autoencoder, Autoencoder2
 
+from DAE import AutoencoderDAE
+
 from font import font1, font2, font3
 import numpy as np
 
@@ -70,14 +72,27 @@ if exercise == '1a':
     autoencoder = Autoencoder(font_bin, eta, beta, division_layer, momentum , momentum_factor, adaptive_learning, adaptive_learning_epochs, adaptive_learning_a, adaptive_learning_b)
     autoencoder.initialize_network()
     autoencoder.initialize_weights()
+
+    autoencoder.train(font_bin, epochs)
   
-    autoencoder.interval_train(3, epochs)
-    autoencoder.graph(font_bin,symbols2 )
+    #autoencoder.interval_train(4, epochs)
+    #autoencoder.graph(font_bin,symbols2 )
+
+if exercise == '1b':
+    
+    dae = AutoencoderDAE(font_bin, eta, beta, division_layer, momentum , momentum_factor, adaptive_learning, adaptive_learning_epochs, adaptive_learning_a, adaptive_learning_b)
+    dae.initialize_network()
+    dae.initialize_weights()
+
+    dae.train(font_bin, epochs)
+
+
 
 if exercise == '2':
     autoencoder = Autoencoder(bin, eta, beta, division_layer, momentum, momentum_factor, adaptive_learning, adaptive_learning_epochs, adaptive_learning_a, adaptive_learning_b)
     autoencoder.initialize_network()
     autoencoder.initialize_weights()
+
 
     learnt = autoencoder.interval_train(3, epochs)
     print(f"Activations: {autoencoder.get_activations()}")
